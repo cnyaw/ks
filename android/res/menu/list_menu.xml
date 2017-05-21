@@ -1,0 +1,5 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:id="@+id/edit_puzzle" android:title="@string/edit_puzzle" />
+  <item android:id="@+id/copy_puzzle" android:title="@string/copy_puzzle" />
+  <item android:id="@+id/delete_puzzle" android:title="@string/delete_puzzle" />
+</menu>

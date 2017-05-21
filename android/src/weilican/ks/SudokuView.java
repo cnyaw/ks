@@ -1,0 +1,224 @@
+
+//
+// SudokuView.java
+// Sudoku view implementation.
+//
+// Copyright (c) 2016 Waync Cheng.
+// All Rights Reserved.
+//
+// 2016/7/17 Waync Cheng.
+//
+
+package weilican.ks;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.view.Display;
+import android.view.View;
+import android.view.WindowManager;
+import android.util.AttributeSet;
+
+public class SudokuView extends View
+{
+  float puzzlew;
+  float cellw;
+  float charw;
+
+  int puzzle[];
+  int candidate[];
+  int ht1[] = null;
+  int ht2[] = null;
+  int ht3[] = null;                     // Reduced candidates: (idx,mask)*
+  int ht4[] = null;                     // Links: (a,b,n)*
+
+  int tCOL[], tROW[];
+
+  int COL(int i) {
+    return tCOL[i];
+  }
+
+  int ROW(int i) {
+    return tROW[i];
+  }
+
+  int n2b(int n)
+  {
+    //
+    // Convert number(1~9) to bit mask.
+    //
+
+    return 1 << (n - 1);
+  }
+
+  public SudokuView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+    Display display = wm.getDefaultDisplay();
+    int w = display.getWidth();
+    int h = display.getHeight();
+    if (h > w) {
+      puzzlew = w - 50;
+    } else {
+      puzzlew = h - 50;
+    }
+    cellw = (puzzlew / 9) - 1;
+    charw = cellw / 3;
+    tCOL = new int[81];
+    tROW = new int[81];
+    for (int i = 0; i < 81; i++) {
+      tCOL[i] = i % 9;
+      tROW[i] = i / 9;
+    }
+  }
+
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    setMeasuredDimension((int)puzzlew, (int)puzzlew);
+  }
+
+  protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+
+    Paint paint = new Paint();
+
+    paint.setStyle(Paint.Style.FILL);
+    paint.setColor(Color.rgb(255,255,240));
+    canvas.drawRect(0, 0, puzzlew, puzzlew, paint);
+
+    paint.setTextAlign(Paint.Align.CENTER);
+    paint.setStrokeWidth(3);
+
+    //
+    // Draw cells.
+    //
+
+    for (int i = 0; i < 81; i++) {
+
+      float x = COL(i) * (1 + cellw), y = ROW(i) * (1 + cellw);
+
+      if (!checkAndFillHtCell(ht1, i, canvas, x, y, Color.rgb(182,255,0), paint)) {
+        checkAndFillHtCell(ht2, i, canvas, x, y, Color.rgb(248,255,144), paint);
+      }
+
+      if (0 != puzzle[i]) {
+
+        //
+        // Draw fixed cells.
+        //
+
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(cellw - 8);
+
+        fillText(canvas, "" + puzzle[i], x, y, cellw, paint);
+
+      }  else {
+
+        //
+        // Draw candidates.
+        //
+
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(charw);
+
+        for (int j = 0; j < 9; j++) {
+          if (0 != (candidate[i] & n2b(1 + j))) {
+            fillText(canvas, "" + (1 + j), x + (j % 3) * charw, y + (j / 3) * charw + 1, charw, paint);
+          }
+        }
+
+        //
+        // Draw reduced candidates.
+        //
+
+        if (null != ht3) {
+          for (int a = 0; a < ht3.length; a += 2) {
+            if (i != ht3[a]) {
+              continue;
+            }
+            int mask = ht3[a + 1];
+            for (int j = 0; j < 9; j++) {
+              if (0 != (mask & n2b(1 + j))) {
+                float lx = (j % 3) * charw;
+                float ly = (j / 3) * charw;
+                paint.setColor(Color.GRAY);
+                fillText(canvas, "" + (1 + j), x + lx, y + ly + 1, charw, paint);
+                paint.setColor(Color.RED);
+                canvas.drawLine(x + lx, y + ly, x + lx + charw, y + ly + charw, paint);
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    //
+    // Draw grids.
+    //
+
+    for (int i = 1; i < 9; i++) {
+      if (0 == (i % 3)) {
+        paint.setColor(Color.BLACK);
+      } else {
+        paint.setColor(Color.LTGRAY);
+      }
+      float x = i * (1 + cellw), y = i * (1 + cellw);
+      canvas.drawLine(x, 0, x, puzzlew, paint);
+      canvas.drawLine(0, y, puzzlew, y, paint);
+    }
+
+    paint.setColor(Color.BLACK);
+    paint.setStyle(Paint.Style.STROKE);
+    paint.setStrokeWidth(4);
+    canvas.drawRect(0, 0, puzzlew, puzzlew, paint);
+
+    //
+    // Draw links.
+    //
+
+    if (null != ht4) {
+      paint.setColor(Color.RED);
+      paint.setStrokeWidth(3);
+      for (int i = 0; i < ht4.length; i += 3) {
+        int a = ht4[i], b = ht4[i + 1];
+        int n = ht4[i + 2] - 1;
+        float xa = COL(a) * (1 + cellw), ya = ROW(a) * (1 + cellw);
+        float cxa = xa + (n % 3) * charw, cya = ya + (n / 3) * charw;
+        float xb = COL(b) * (1 + cellw), yb = ROW(b) * (1 + cellw);
+        float cxb = xb + (n % 3) * charw, cyb = yb + (n / 3) * charw;
+        canvas.drawRect(cxa, cya, cxa + charw, cya + charw, paint);
+        canvas.drawRect(cxb, cyb, cxb + charw, cyb + charw, paint);
+        canvas.drawLine(cxa + charw/2, cya + charw/2, cxb + charw/2, cyb + charw/2, paint);
+      }
+    }
+  }
+
+  void fillCell(Canvas canvas, float x, float y, int color, Paint paint) {
+    paint.setStyle(Paint.Style.FILL);
+    paint.setColor(color);
+    Rect r = new Rect(0, 0, (int)cellw + 1, (int)cellw + 1);
+    r.offset((int)x + 1, (int)y + 1);
+    canvas.drawRect(r, paint);
+  }
+
+  void fillText(Canvas canvas, String s, float x, float y, float cw, Paint paint) {
+    float cx = cw / 2;
+    float cy = (cw - (paint.descent() + paint.ascent())) / 2;
+    canvas.drawText(s, x + cx, y + cy, paint);
+  }
+
+  boolean checkAndFillHtCell(int ht[], int i, Canvas canvas, float x, float y, int color, Paint paint) {
+    if (null != ht) {
+      for (int j = 0; j < ht.length; j++) {
+        if (i == ht[j]) {
+          fillCell(canvas, x, y, color, paint);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}

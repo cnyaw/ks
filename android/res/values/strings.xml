@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Kill Sudoku</string>
+  <string name="new_puzzle">New</string>
+  <string name="edit_puzzle">Edit</string>
+  <string name="copy_puzzle">Copy</string>
+  <string name="delete_puzzle">Delete</string>
+</resources>

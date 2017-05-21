@@ -1,0 +1,20 @@
+<LinearLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  >
+  <ListView
+    android:id="@+id/puzzle_list"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    />
+  <Button
+    android:id="@+id/btn_new"
+    android:text="@string/new_puzzle"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="0"
+    />
+</LinearLayout>

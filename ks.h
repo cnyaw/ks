@@ -1563,51 +1563,56 @@ again:
     return false;
   }
 
-  bool findXChains(int round)
+  void collectStrongLinks(int n, int &cx, int x[])
   {
     int c[9], idx[9], cell[9];
+    cx = 0;
+
+    for (int row = 0; row < 9; row++) {
+      getCandidateListOfRow(row, c, idx);
+      if (2 == getCandidateCountOfList(c, n, cell)) {
+        int i1 = idx[cell[0]], i2 = idx[cell[1]];
+        if (BOX(i1) != BOX(i2)) {
+          x[cx * 2 + 0] = i1;
+          x[cx * 2 + 1] = i2;
+          cx += 1;
+        }
+      }
+    }
+
+    for (int col = 0; col < 9; col++) {
+      getCandidateListOfCol(col, c, idx);
+      if (2 == getCandidateCountOfList(c, n, cell)) {
+        int i1 = idx[cell[0]], i2 = idx[cell[1]];
+        if (BOX(i1) != BOX(i2)) {
+          x[cx * 2 + 0] = i1;
+          x[cx * 2 + 1] = i2;
+          cx += 1;
+        }
+      }
+    }
+
+    for (int box = 0; box < 9; box++) {
+      getCandidateListOfBox(box, c, idx);
+      if (2 == getCandidateCountOfList(c, n, cell)) {
+        x[cx * 2 + 0] = idx[cell[0]];
+        x[cx * 2 + 1] = idx[cell[1]];
+        cx += 1;
+      }
+    }
+  }
+
+  bool findXChains(int round)
+  {
     int cx, x[81];
 
     for (int n = 1; n <= 9; n++) {
-
-      cx = 0;
 
       //
       // Collect strong links.
       //
 
-      for (int row = 0; row < 9; row++) {
-        getCandidateListOfRow(row, c, idx);
-        if (2 == getCandidateCountOfList(c, n, cell)) {
-          int i1 = idx[cell[0]], i2 = idx[cell[1]];
-          if (BOX(i1) != BOX(i2)) {
-            x[cx * 2 + 0] = i1;
-            x[cx * 2 + 1] = i2;
-            cx += 1;
-          }
-        }
-      }
-
-      for (int col = 0; col < 9; col++) {
-        getCandidateListOfCol(col, c, idx);
-        if (2 == getCandidateCountOfList(c, n, cell)) {
-          int i1 = idx[cell[0]], i2 = idx[cell[1]];
-          if (BOX(i1) != BOX(i2)) {
-            x[cx * 2 + 0] = i1;
-            x[cx * 2 + 1] = i2;
-            cx += 1;
-          }
-        }
-      }
-
-      for (int box = 0; box < 9; box++) {
-        getCandidateListOfBox(box, c, idx);
-        if (2 == getCandidateCountOfList(c, n, cell)) {
-          x[cx * 2 + 0] = idx[cell[0]];
-          x[cx * 2 + 1] = idx[cell[1]];
-          cx += 1;
-        }
-      }
+      collectStrongLinks(n, cx, x);
 
       if (2 > cx) {
         continue;

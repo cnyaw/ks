@@ -25,6 +25,16 @@ public:
     int bestChain[81];                  // The shortest chain.
   };
 
+  struct XyzChainState
+  {
+    int cx[9], x[9][81], xmap[81];      // X links.
+    int cxy, xy[81], xymap[81];         // XY cells.
+    int nCells, cells[81];              // Possible node of XYZ chains.
+    int flags[81];                      // Is used state of cell.
+    int nChain, chain[81], mask[81];    // XYZ chains.
+    int nBestChain, bestChain[81], bestMask[81]; // Shortest chain.
+  };
+
   //
   // The puzzle consist of 9x9(p[81]) cells. Layout from left to right, top
   // to bottom. Each solved cell contains a number(1~9), and 0 indicates this
@@ -64,6 +74,7 @@ public:
     installCf(&KillSudoku::findXyzWings);
     installCf(&KillSudoku::findXChains);
     installCf(&KillSudoku::findXyChains);
+    installCf(&KillSudoku::findXyzChains);
 
     //
     // Build lookup table.
@@ -88,6 +99,7 @@ public:
   virtual void printWWing(int round, int n, int a1, int a2, int b1, int b2, int nht3, int ht3[]) const=0;
   virtual void printXChains(int round, int n, int link[], int len, int chain[], int a, int b, int nht3, int ht3[]) const=0;
   virtual void printXyChains(int round, int n, XyChainState const& s, int nht3, int ht3[]) const=0;
+  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
   virtual void printPuzzle() const=0;
 
   void installCf(CHECK f)
@@ -1807,6 +1819,228 @@ again:
         s.nChain = s.nBestChain;
         memcpy(s.chain, s.bestChain, sizeof(s.chain));
         printXyChains(round, b2n(mask), s, nht3, ht3);
+        updateCandidates();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  int getXyzChainEndPoint(const XyzChainState &s, int n, int cell)
+  {
+    for (int i = 0; i < s.cx[n]; i++) {
+      if (s.x[n][2 * i] == cell) {
+        return s.x[n][2 * i + 1];
+      } else if (s.x[n][2 * i + 1] == cell) {
+        return s.x[n][2 * i];
+      }
+    }
+    return -1;
+  }
+
+  void findXyzChains(XyzChainState &s)
+  {
+    //
+    // Check is current chain valid.
+    //
+
+    if (4 < s.nChain && s.nBestChain > s.nChain && s.mask[0] == s.mask[s.nChain - 1]) {
+      int nht3 = 0, ht3[18];
+      int a = s.chain[0];               // Head.
+      int b = s.chain[s.nChain - 1];    // Tail.
+      if (BOX(a) != BOX(b) && isChanged(a, b, s.mask[0], nht3, ht3, true)) {
+        s.nBestChain = s.nChain;
+        memcpy(s.bestChain, s.chain, sizeof(s.bestChain));
+        memcpy(s.bestMask, s.mask, sizeof(s.bestMask));
+      }
+    }
+
+    //
+    // Backtracking to find a XYZ chain.
+    //
+
+    for (int i = 0; i < s.nCells; i++) {
+      if (s.nChain >= s.nBestChain) {   // Impossible to get shorter chain, skip.
+        break;
+      }
+      int cell = s.cells[i];
+      if (s.flags[cell]) {
+        continue;
+      }
+      int tail = s.chain[s.nChain - 1];
+      if (!hasLink(tail, cell)) {       // Has possible link?
+        continue;
+      }
+      int mask = s.mask[s.nChain - 1];
+      s.flags[cell] += 1;
+      if (cell != tail && s.xymap[cell]) { // Check link of XY cell.
+        s.chain[s.nChain] = cell;
+        s.chain[s.nChain + 1] = cell;
+        int c = s.xymap[cell];
+        int mask1 = c2b(c, 1), mask2 = c2b(c, 2);
+        if (mask1 == mask) {
+          s.mask[s.nChain] = mask;
+          s.mask[s.nChain + 1] = mask2;
+          s.nChain += 2;
+          findXyzChains(s);
+          s.nChain -= 2;
+        } else if (mask2 == mask) {
+          s.mask[s.nChain] = mask;
+          s.mask[s.nChain + 1] = mask1;
+          s.nChain += 2;
+          findXyzChains(s);
+          s.nChain -= 2;
+        }
+      }
+      if (s.xmap[cell]) {               // Check link of X link.
+        int cellmask = s.xmap[cell];
+        for (int j = 0; j < 9; j++) {   // Case 1: connected node can be a link of any number.
+          if (2 <= s.nChain && s.chain[s.nChain - 2] == s.chain[s.nChain - 1]) {
+            continue;
+          }
+          int n = n2b(1 + j);
+          if (n == mask || 0 == (cellmask & n)) {
+            continue;
+          }
+          int end = getXyzChainEndPoint(s, j, cell);
+          if (-1 != end && (tail == cell || tail == end)) {
+            if (tail == cell) {
+              s.chain[s.nChain] = cell;
+              s.chain[s.nChain + 1] = end;
+            } else {
+              s.chain[s.nChain] = end;
+              s.chain[s.nChain + 1] = cell;
+            }
+            s.mask[s.nChain] = n;
+            s.mask[s.nChain + 1] = n;
+            s.flags[end] += 1;
+            s.nChain += 2;
+            findXyzChains(s);
+            s.nChain -= 2;
+            s.flags[end] -= 1;
+          }
+        }
+        int end = getXyzChainEndPoint(s, b2n(mask) - 1, cell);
+        if (-1 != end && end != tail) { // Case 2: dummy link with same number.
+          s.chain[s.nChain] = cell;
+          s.chain[s.nChain + 1] = end;
+          s.mask[s.nChain] = mask;
+          s.mask[s.nChain + 1] = mask;
+          s.flags[end] += 1;
+          s.nChain += 2;
+          findXyzChains(s);
+          s.nChain -= 2;
+          s.flags[end] -= 1;
+        }
+      }
+      s.flags[cell] -= 1;
+    }
+  }
+
+  bool findXyzChains(int round)
+  {
+    XyzChainState s = {0};
+
+    //
+    // Collect strong links.
+    //
+
+    for (int i = 0; i < 9; i++) {
+      collectStrongLinks(1 + i, s.cx[i], s.x[i]);
+    }
+
+    for (int i = 0; i < 9; i++) {
+      int n = n2b(1 + i);
+      for (int j = 0; j < s.cx[i]; j++) {
+        int cell1 = s.x[i][2 * j];
+        int cell2 = s.x[i][2 * j + 1];
+        s.xmap[cell1] |= n;
+        s.xmap[cell2] |= n;
+      }
+    }
+
+    //
+    // Collect cells that have 2 candidates.
+    //
+
+    for (int i = 0; i < 81; i++) {
+      if (2 == bc(candidate[i])) {
+        s.xy[s.cxy] = i;
+        s.cxy += 1;
+      }
+    }
+
+    for (int i = 0; i < s.cxy; i++) {
+      int cell = s.xy[i];
+      s.xymap[cell] = candidate[cell];
+    }
+
+    //
+    // Collect candidate cells of XYZ chains.
+    //
+
+    for (int i = 0; i < 81; i++) {
+      if (s.xmap[i] || s.xymap[i]) {
+        s.cells[s.nCells] = i;
+        s.nCells += 1;
+      }
+    }
+
+    //
+    // Backtracking to find a XYZ chain of start points.
+    //
+
+    s.nBestChain = 1000;
+    for (int i = 0; i < s.nCells; i++) {
+      int cell = s.cells[i];
+      s.flags[cell] += 1;
+      if (s.xymap[cell]) {
+        s.chain[s.nChain] = cell;
+        s.chain[s.nChain + 1] = cell;
+        int c = s.xymap[cell];
+        int mask1 = c2b(c, 1), mask2 = c2b(c, 2);
+        s.mask[s.nChain] = mask2;
+        s.mask[s.nChain + 1] = mask1;
+        s.nChain += 2;
+        findXyzChains(s);
+        s.nChain -= 2;
+        s.mask[s.nChain] = mask1;
+        s.mask[s.nChain + 1] = mask2;
+        s.nChain += 2;
+        findXyzChains(s);
+        s.nChain -= 2;
+      }
+      if (s.xmap[cell]) {
+        int mask = s.xmap[cell];
+        for (int j = 0; j < 9; j++) {
+          int n = n2b(1 + j);
+          if (0 == (mask & n)) {
+            continue;
+          }
+          int end = getXyzChainEndPoint(s, j, cell);
+          if (-1 != end) {
+            s.chain[s.nChain] = cell;
+            s.chain[s.nChain + 1] = end;
+            s.mask[s.nChain] = n;
+            s.mask[s.nChain + 1] = n;
+            s.nChain += 2;
+            s.flags[end] += 1;
+            findXyzChains(s);
+            s.nChain -= 2;
+            s.flags[end] -= 1;
+          }
+        }
+      }
+      s.flags[cell] -= 1;
+    }
+
+    if (1000 != s.nBestChain) {
+      int mask = s.bestMask[0], nht3 = 0, ht3[18];
+      int a = s.bestChain[0];           // Head.
+      int b = s.bestChain[s.nBestChain - 1]; // Tail.
+      if (BOX(a) != BOX(b) && isChanged(a, b, mask, nht3, ht3)) {
+        printXyzChains(round, b2n(mask), s, nht3, ht3);
         updateCandidates();
         return true;
       }

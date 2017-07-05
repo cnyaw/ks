@@ -130,6 +130,21 @@ public:
     printf("(%d)\n", n);
   }
 
+  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  {
+    printf("%d, XYZ-Chains: ", round);
+    for (int i = 0; i < s.nBestChain; i+=2) {
+      printf(
+        "%c%d(%d)-%c%d(%d) ",
+        'a' + COL(s.bestChain[i]),
+        1 + ROW(s.bestChain[i]), b2n(s.bestMask[i]),
+        'a' + COL(s.bestChain[i + 1]),
+        1 + ROW(s.bestChain[i + 1]), b2n(s.bestMask[i + 1])
+        );
+    }
+    printf("(%d)\n", n);
+  }
+
   virtual void printPuzzle() const
   {
     //

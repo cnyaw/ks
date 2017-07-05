@@ -242,6 +242,30 @@ public:
     tmpEnv->CallStaticVoidMethod(cls, mid, round, getPuzzleIntArray(), getCandidateIntArray(), a, b, iaHt3, iaHt4);
   }
 
+  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  {
+    jclass cls = tmpEnv->FindClass(JNI_ACTIVITY);
+    jmethodID mid = tmpEnv->GetStaticMethodID(cls, "printXyzChains", "(I[I[III[I[I)V");
+    if (!mid) {
+      return;
+    }
+    int a = s.bestChain[0];             // Head.
+    int b = s.bestChain[s.nBestChain - 1]; // Tail.
+    int nht4 = 0, ht4[81 * 2];
+    for (int i = 0; i < s.nBestChain; i += 2) {
+      int x = s.bestChain[i];
+      int y = s.bestChain[i + 1];
+      if (x != y) {
+        ht4[nht4++] = x;
+        ht4[nht4++] = y;
+        ht4[nht4++] = b2n(s.bestMask[i]);
+      }
+    }
+    jintArray iaHt3 = getIntArray(nht3, (const int*)ht3);
+    jintArray iaHt4 = getIntArray(nht4, (const int*)ht4);
+    tmpEnv->CallStaticVoidMethod(cls, mid, round, getPuzzleIntArray(), getCandidateIntArray(), a, b, iaHt3, iaHt4);
+  }
+
   virtual void printPuzzle() const
   {
   }

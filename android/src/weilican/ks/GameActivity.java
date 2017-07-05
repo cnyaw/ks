@@ -38,6 +38,7 @@ public class GameActivity extends Activity
   static final public int PATTERN_W_WING = 512;
   static final public int PATTERN_X_CHAINS = 1024;
   static final public int PATTERN_XY_CHAINS = 2048;
+  static final public int PATTERN_XYZ_CHAINS = 4096;
 
   static GameActivity This;
 
@@ -273,6 +274,16 @@ public class GameActivity extends Activity
     s.ht4 = ht4;
     This.addStep(s);
     This.pattern |= PATTERN_XY_CHAINS;
+  }
+
+  static void printXyzChains(int round, int puzzle[], int candidate[], int a, int b, int ht3[], int ht4[])
+  {
+    SolvingStep s = new SolvingStep(round + ", XYZ-Chains", puzzle, candidate);
+    s.ht1 = new int[] {a, b};
+    s.ht3 = ht3;
+    s.ht4 = ht4;
+    This.addStep(s);
+    This.pattern |= PATTERN_XYZ_CHAINS;
   }
 
   static native void ksSolve(String puzzle);

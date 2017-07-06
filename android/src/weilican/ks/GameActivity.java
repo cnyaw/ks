@@ -227,11 +227,12 @@ public class GameActivity extends Activity
     This.pattern |= PATTERN_X_WING;
   }
 
-  static void printXyWing(int round, int puzzle[], int candidate[], int ht1[], int ht3[])
+  static void printXyWing(int round, int puzzle[], int candidate[], int ht1[], int ht3[], int ht4[])
   {
     SolvingStep s = new SolvingStep(round + ", XY-Wing", puzzle, candidate);
     s.ht1 = ht1;
     s.ht3 = ht3;
+    s.ht4 = ht4;
     This.addStep(s);
     This.pattern |= PATTERN_XY_WING;
   }

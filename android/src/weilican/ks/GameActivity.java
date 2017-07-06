@@ -256,10 +256,10 @@ public class GameActivity extends Activity
     This.pattern |= PATTERN_W_WING;
   }
 
-  static void printXChains(int round, int puzzle[], int candidate[], int ht1[], int ht3[], int ht4[])
+  static void printXChains(int round, int puzzle[], int candidate[], int a, int b, int ht3[], int ht4[])
   {
     SolvingStep s = new SolvingStep(round + ", X-Chains", puzzle, candidate);
-    s.ht1 = ht1;
+    s.ht1 = new int[] {a, b};
     s.ht3 = ht3;
     s.ht4 = ht4;
     This.addStep(s);

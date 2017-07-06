@@ -104,35 +104,19 @@ public:
     printf("(%d)\n", n);
   }
 
-  virtual void printXChains(int round, int n, int link[], int len, int chain[], int a, int b, int nht3, int ht3[]) const
+  virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
   {
-    printf("%d, X-Chains: ", round);
-    for (int i = 0; i < len; i++) {
-      printf(
-        "%c%d-%c%d ",
-        'a' + COL(link[2 * chain[i]]),
-        1 + ROW(link[2 * chain[i]]),
-        'a' + COL(link[2 * chain[i] + 1]),
-        1 + ROW(link[2 * chain[i] + 1]));
-    }
-    printf("(%d)\n", n);
+    printXyzChains("X-Chains", round, n, s, nht3, ht3);
   }
 
-  virtual void printXyChains(int round, int n, XyChainState const& s, int nht3, int ht3[]) const
+  virtual void printXyChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
   {
-    printf("%d, XY-Chains: ", round);
-    for (int i = 0; i < s.nChain; i++) {
-      printf(
-        "%c%d ",
-        'a' + COL(s.chain[i]),
-        1 + ROW(s.chain[i]));
-    }
-    printf("(%d)\n", n);
+    printXyzChains("XY-Chains", round, n, s, nht3, ht3);
   }
 
-  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  void printXyzChains(const char *pMsg, int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
   {
-    printf("%d, XYZ-Chains: ", round);
+    printf("%d, %s: ", round, pMsg);
     for (int i = 0; i < s.nBestChain; i+=2) {
       printf(
         "%c%d(%d)-%c%d(%d) ",
@@ -143,6 +127,11 @@ public:
         );
     }
     printf("(%d)\n", n);
+  }
+
+  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  {
+    printXyzChains("XYZ-Chains", round, n, s, nht3, ht3);
   }
 
   virtual void printPuzzle() const

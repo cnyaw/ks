@@ -1610,40 +1610,12 @@ again:
 
   bool findXChains(int round)
   {
-    XyzChainState s = {0};
-
-    findXyzChains(s, CHAIN_TYPE_X);
-    if (1000 != s.nBestChain) {
-      int mask = s.bestMask[0], nht3 = 0, ht3[18];
-      int a = s.bestChain[0];           // Head.
-      int b = s.bestChain[s.nBestChain - 1]; // Tail.
-      if (BOX(a) != BOX(b) && isChanged(a, b, mask, nht3, ht3)) {
-        printXChains(round, b2n(mask), s, nht3, ht3);
-        updateCandidates();
-        return true;
-      }
-    }
-
-    return false;
+    return findXyzChains(round, CHAIN_TYPE_X, &KillSudoku::printXChains);
   }
 
   bool findXyChains(int round)
   {
-    XyzChainState s = {0};
-
-    findXyzChains(s, CHAIN_TYPE_XY);
-    if (1000 != s.nBestChain) {
-      int mask = s.bestMask[0], nht3 = 0, ht3[18];
-      int a = s.bestChain[0];           // Head.
-      int b = s.bestChain[s.nBestChain - 1]; // Tail.
-      if (BOX(a) != BOX(b) && isChanged(a, b, mask, nht3, ht3)) {
-        printXyChains(round, b2n(mask), s, nht3, ht3);
-        updateCandidates();
-        return true;
-      }
-    }
-
-    return false;
+    return findXyzChains(round, CHAIN_TYPE_XY, &KillSudoku::printXyChains);
   }
 
   int getXyzChainEndPoint(const XyzChainState &s, int n, int cell)
@@ -1859,23 +1831,30 @@ again:
     }
   }
 
-  bool findXyzChains(int round)
+  typedef void (KillSudoku::*PrintXyzChainsT)(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const;
+
+  bool findXyzChains(int round, int type, PrintXyzChainsT p)
   {
     XyzChainState s = {0};
 
-    findXyzChains(s, CHAIN_TYPE_XYZ);
+    findXyzChains(s, type);
     if (1000 != s.nBestChain) {
       int mask = s.bestMask[0], nht3 = 0, ht3[18];
       int a = s.bestChain[0];           // Head.
       int b = s.bestChain[s.nBestChain - 1]; // Tail.
       if (BOX(a) != BOX(b) && isChanged(a, b, mask, nht3, ht3)) {
-        printXyzChains(round, b2n(mask), s, nht3, ht3);
+        ((KillSudoku*)this->*p)(round, b2n(mask), s, nht3, ht3);
         updateCandidates();
         return true;
       }
     }
 
     return false;
+  }
+
+  bool findXyzChains(int round)
+  {
+    return findXyzChains(round, CHAIN_TYPE_XYZ, &KillSudoku::printXyzChains);
   }
 };
 

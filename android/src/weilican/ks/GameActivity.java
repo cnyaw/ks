@@ -101,7 +101,7 @@ public class GameActivity extends Activity
     public View getView(int position, View convertView, ViewGroup parent) {
       View v = convertView;
       if (null == convertView) {
-        v = inflater.inflate(R.layout.list_item, null);
+        v = inflater.inflate(R.layout.step_list_item, null);
       }
       TextView title = (TextView)v.findViewById(R.id.title);
       SudokuView puzzle = (SudokuView)v.findViewById(R.id.puzzle);

@@ -86,6 +86,10 @@ public class SudokuView extends View
     setMeasuredDimension((int)puzzlew, (int)puzzlew);
   }
 
+  void drawLink(Canvas canvas, float x0, float y0, float x1, float y1, Paint paint) {
+    canvas.drawLine(x0 + charw/2, y0 + charw/2, x1 + charw/2, y1 + charw/2, paint);
+  }
+
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
 
@@ -203,7 +207,7 @@ public class SudokuView extends View
         float cxb = xb + (n % 3) * charw, cyb = yb + (n / 3) * charw;
         canvas.drawRect(cxa, cya, cxa + charw, cya + charw, paint);
         canvas.drawRect(cxb, cyb, cxb + charw, cyb + charw, paint);
-        canvas.drawLine(cxa + charw/2, cya + charw/2, cxb + charw/2, cyb + charw/2, paint);
+        drawLink(canvas, cxa, cya, cxb, cyb, paint);
         if (0 < i && 0 == (i % 3)) {
           int a0 = ht4[i - 3], b0 = ht4[i - 2];
           int n0 = ht4[i - 1] - 1;
@@ -212,29 +216,29 @@ public class SudokuView extends View
           float xb0 = COL(b0) * (1 + cellw), yb0 = ROW(b0) * (1 + cellw);
           float cxb0 = xb0 + (n0 % 3) * charw, cyb0 = yb0 + (n0 / 3) * charw;
           if (a0 == a) {
-            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+            drawLink(canvas, cxa0, cya0, cxa, cya, dotpaint);
           } else if (a0 == b) {
-            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+            drawLink(canvas, cxa0, cya0, cxb, cyb, dotpaint);
           } else if (b0 == a) {
-            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+            drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
           } else if (b0 == b) {
-            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+            drawLink(canvas, cxb0, cyb0, cxb, cyb, dotpaint);
           } else if (BOX(b0) == BOX(b)) {
-            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+            drawLink(canvas, cxb0, cyb0, cxb, cyb, dotpaint);
           } else if (BOX(a0) == BOX(a)) {
-            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+            drawLink(canvas, cxa0, cya0, cxa, cya, dotpaint);
           } else if (BOX(a0) == BOX(b)) {
-            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+            drawLink(canvas, cxa0, cya0, cxb, cyb, dotpaint);
           } else if (BOX(b0) == BOX(a)) {
-            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+            drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
           } else if (COL(a0) == COL(a) || ROW(a0) == ROW(a)) {
-            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+            drawLink(canvas, cxa0, cya0, cxa, cya, dotpaint);
           } else if (COL(a0) == COL(b) || ROW(a0) == ROW(b)) {
-            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+            drawLink(canvas, cxa0, cya0, cxb, cyb, dotpaint);
           } else if (COL(b0) == COL(a) || ROW(b0) == ROW(a)) {
-            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+            drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
           } else if (COL(b0) == COL(b) || ROW(b0) == ROW(b)) {
-            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+            drawLink(canvas, cxb0, cyb0, cxb, cyb, dotpaint);
           }
         }
       }

@@ -14,6 +14,7 @@ package weilican.ks;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.Display;
@@ -34,7 +35,7 @@ public class SudokuView extends View
   int ht3[] = null;                     // Reduced candidates: (idx,mask)*
   int ht4[] = null;                     // Links: (a,b,n)*
 
-  int tCOL[], tROW[];
+  int tCOL[], tROW[], tBOX[];
 
   int COL(int i) {
     return tCOL[i];
@@ -42,6 +43,10 @@ public class SudokuView extends View
 
   int ROW(int i) {
     return tROW[i];
+  }
+
+  int BOX(int i) {
+    return tBOX[i];
   }
 
   int n2b(int n)
@@ -68,9 +73,11 @@ public class SudokuView extends View
     charw = cellw / 3;
     tCOL = new int[81];
     tROW = new int[81];
+    tBOX = new int[81];
     for (int i = 0; i < 81; i++) {
       tCOL[i] = i % 9;
       tROW[i] = i / 9;
+      tBOX[i] = 3 * (tROW[i] / 3) + (tCOL[i] / 3);
     }
   }
 
@@ -179,6 +186,11 @@ public class SudokuView extends View
     // Draw links.
     //
 
+    Paint dotpaint = new Paint();
+    dotpaint.setARGB(255, 255, 0, 0);
+    dotpaint.setStyle(Paint.Style.STROKE);
+    dotpaint.setPathEffect(new DashPathEffect(new float[] {5, 3}, 0));
+
     if (null != ht4) {
       paint.setColor(Color.RED);
       paint.setStrokeWidth(3);
@@ -192,6 +204,39 @@ public class SudokuView extends View
         canvas.drawRect(cxa, cya, cxa + charw, cya + charw, paint);
         canvas.drawRect(cxb, cyb, cxb + charw, cyb + charw, paint);
         canvas.drawLine(cxa + charw/2, cya + charw/2, cxb + charw/2, cyb + charw/2, paint);
+        if (0 < i && 0 == (i % 3)) {
+          int a0 = ht4[i - 3], b0 = ht4[i - 2];
+          int n0 = ht4[i - 1] - 1;
+          float xa0 = COL(a0) * (1 + cellw), ya0 = ROW(a0) * (1 + cellw);
+          float cxa0 = xa0 + (n0 % 3) * charw, cya0 = ya0 + (n0 / 3) * charw;
+          float xb0 = COL(b0) * (1 + cellw), yb0 = ROW(b0) * (1 + cellw);
+          float cxb0 = xb0 + (n0 % 3) * charw, cyb0 = yb0 + (n0 / 3) * charw;
+          if (a0 == a) {
+            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+          } else if (a0 == b) {
+            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+          } else if (b0 == a) {
+            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+          } else if (b0 == b) {
+            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+          } else if (BOX(b0) == BOX(b)) {
+            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+          } else if (BOX(a0) == BOX(a)) {
+            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+          } else if (BOX(a0) == BOX(b)) {
+            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+          } else if (BOX(b0) == BOX(a)) {
+            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+          } else if (COL(a0) == COL(a) || ROW(a0) == ROW(a)) {
+            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+          } else if (COL(a0) == COL(b) || ROW(a0) == ROW(b)) {
+            canvas.drawLine(cxa0 + charw/2, cya0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+          } else if (COL(b0) == COL(a) || ROW(b0) == ROW(a)) {
+            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxa + charw/2, cya + charw/2, dotpaint);
+          } else if (COL(b0) == COL(b) || ROW(b0) == ROW(b)) {
+            canvas.drawLine(cxb0 + charw/2, cyb0 + charw/2, cxb + charw/2, cyb + charw/2, dotpaint);
+          }
+        }
       }
     }
   }

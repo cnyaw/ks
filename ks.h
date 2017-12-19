@@ -1636,7 +1636,8 @@ again:
     // Check is current chain valid.
     //
 
-    if (4 < s.nChain && s.nBestChain > s.nChain && s.mask[0] == s.mask[s.nChain - 1]) {
+    if (((CHAIN_TYPE_X == s.type && 4 <= s.nChain) || (4 < s.nChain)) &&
+         s.nBestChain > s.nChain && s.mask[0] == s.mask[s.nChain - 1]) {
       int nht3 = 0, ht3[18];
       int a = s.chain[0];               // Head.
       int b = s.chain[s.nChain - 1];    // Tail.

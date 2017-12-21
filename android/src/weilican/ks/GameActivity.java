@@ -32,13 +32,9 @@ public class GameActivity extends Activity
   static final public int PATTERN_CLAIMING = 8;
   static final public int PATTERN_NAKED_SUBSET = 16;
   static final public int PATTERN_HIDDEN_SUBSET = 32;
-  static final public int PATTERN_X_WING = 64;
-  static final public int PATTERN_XY_WING = 128;
-  static final public int PATTERN_XYZ_WING = 256;
-  static final public int PATTERN_W_WING = 512;
-  static final public int PATTERN_X_CHAINS = 1024;
-  static final public int PATTERN_XY_CHAINS = 2048;
-  static final public int PATTERN_XYZ_CHAINS = 4096;
+  static final public int PATTERN_X_CHAINS = 64;
+  static final public int PATTERN_XY_CHAINS = 128;
+  static final public int PATTERN_XYZ_CHAINS = 256;
 
   static GameActivity This;
 
@@ -214,47 +210,6 @@ public class GameActivity extends Activity
   {
     This.addStep(new SolvingStep(round + ", Hidden Subset", puzzle, candidate));
     This.pattern |= PATTERN_HIDDEN_SUBSET;
-  }
-
-  static void printXWing(int round, int puzzle[], int candidate[], int ht1[], int ht2[], int ht3[], int ht4[])
-  {
-    SolvingStep s = new SolvingStep(round + ", X-Wing", puzzle, candidate);
-    s.ht1 = ht1;
-    s.ht2 = ht2;
-    s.ht3 = ht3;
-    s.ht4 = ht4;
-    This.addStep(s);
-    This.pattern |= PATTERN_X_WING;
-  }
-
-  static void printXyWing(int round, int puzzle[], int candidate[], int ht1[], int ht3[], int ht4[])
-  {
-    SolvingStep s = new SolvingStep(round + ", XY-Wing", puzzle, candidate);
-    s.ht1 = ht1;
-    s.ht3 = ht3;
-    s.ht4 = ht4;
-    This.addStep(s);
-    This.pattern |= PATTERN_XY_WING;
-  }
-
-  static void printXyzWing(int round, int puzzle[], int candidate[], int ht1[], int ht3[])
-  {
-    SolvingStep s = new SolvingStep(round + ", XYZ-Wing", puzzle, candidate);
-    s.ht1 = ht1;
-    s.ht3 = ht3;
-    This.addStep(s);
-    This.pattern |= PATTERN_XYZ_WING;
-  }
-
-  static void printWWing(int round, int puzzle[], int candidate[], int a1, int a2, int b1, int b2, int ht3[], int ht4[])
-  {
-    SolvingStep s = new SolvingStep(round + ", W-Wing", puzzle, candidate);
-    s.ht1 = new int[] {a1, a2};
-    s.ht2 = new int[] {b1, b2};
-    s.ht3 = ht3;
-    s.ht4 = ht4;
-    This.addStep(s);
-    This.pattern |= PATTERN_W_WING;
   }
 
   static void printXChains(int round, int puzzle[], int candidate[], int a, int b, int ht3[], int ht4[])

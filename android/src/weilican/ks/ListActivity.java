@@ -62,8 +62,8 @@ public class ListActivity extends Activity
       }
 
       final String p[] = {"Naked Single", "Hidden Single", "Pointing", "Claiming",
-                          "Naked Subset", "Hidden Subset", "X-Wing", "XY-Wing",
-                          "XYZ-Wing", "W-Wing", "X-Chains", "XY-Chains", "XYZ-Chains"};
+                          "Naked Subset", "Hidden Subset",
+                          "X-Chains", "XY-Chains", "XYZ-Chains"};
       String s = "";
       for (int i = 0; i < p.length; i++) {
         if (0 != (pattern & (1 << i))) {

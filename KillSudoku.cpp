@@ -71,39 +71,6 @@ public:
      printf(")\n");
   }
 
-  virtual void printXWing(int round, int n, int a1, int a2, int b1, int b2, int *idx/*18*/, int nht3, int ht3[]) const
-  {
-    printf("%d, X-Wings: ", round);
-    printf("%c%d-%c%d, %c%d-%c%d ", 'a' + COL(a1), 1 + ROW(a1), 'a' + COL(a2), 1 + ROW(a2), 'a' + COL(b1), 1 + ROW(b1), 'a' + COL(b2), 1 + ROW(b2));
-    printf("(%d)\n", n);
-  }
-
-  virtual void printXyWing(int round, int n, int a, int b, int c, int nht3, int ht3[]) const
-  {
-    printf("%d, XY-Wings: ", round);
-    printf("%c%d ", 'a' + COL(a), 1 + ROW(a));
-    printf("%c%d ", 'a' + COL(b), 1 + ROW(b));
-    printf("%c%d ", 'a' + COL(c), 1 + ROW(c));
-    printf("(%d)\n", n);
-  }
-
-  virtual void printXyzWing(int round, int n, int a, int b, int c, int nht3, int ht3[]) const
-  {
-    printf("%d, XYZ-Wings: ", round);
-    printf("%c%d ", 'a' + COL(a), 1 + ROW(a));
-    printf("%c%d ", 'a' + COL(b), 1 + ROW(b));
-    printf("%c%d ", 'a' + COL(c), 1 + ROW(c));
-    printf("(%d)\n", n);
-  }
-
-  virtual void printWWing(int round, int n, int a1, int a2, int b1, int b2, int nht3, int ht3[]) const
-  {
-    printf("%d, W-Wings: ", round);
-    printf("%c%d ", 'a' + COL(a1), 1 + ROW(a1));
-    printf("%c%d ", 'a' + COL(a2), 1 + ROW(a2));
-    printf("(%d)\n", n);
-  }
-
   virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
   {
     printXyzChains("X-Chains", round, n, s, nht3, ht3);

@@ -160,23 +160,18 @@ public:
     for (int i = 0; i < s.nBestChain; i += 2) {
       int x = s.bestChain[i];
       int y = s.bestChain[i + 1];
-      if (CHAIN_TYPE_XY == s.type) {
-xy_link:
-        if (0 < i) {
-          ht4[nht4++] = s.bestChain[i - 1];
-          ht4[nht4++] = x;
-          ht4[nht4++] = b2n(s.bestMask[i]);
-        }
-      } else if (x != y) {
+      int n1 = b2n(s.bestMask[i]);
+      int n2 = b2n(s.bestMask[i + 1]);
+      if (x != y) {
         ht4[nht4++] = x;
         ht4[nht4++] = y;
-        ht4[nht4++] = b2n(s.bestMask[i]);
+        ht4[nht4++] = n1;
+        ht4[nht4++] = n1;
       } else {
-        int x0 = s.bestChain[i - 2];
-        int y0 = s.bestChain[i - 1];
-        if (x0 == y0) {
-          goto xy_link;
-        }
+        ht4[nht4++] = x;
+        ht4[nht4++] = x;
+        ht4[nht4++] = n1;
+        ht4[nht4++] = n2;
       }
     }
     jintArray iaHt3 = getIntArray(nht3, (const int*)ht3);

@@ -198,48 +198,23 @@ public class SudokuView extends View
     if (null != ht4) {
       paint.setColor(Color.RED);
       paint.setStrokeWidth(3);
-      for (int i = 0; i < ht4.length; i += 3) {
+      for (int i = 0; i < ht4.length; i += 4) {
         int a = ht4[i], b = ht4[i + 1];
-        int n = ht4[i + 2] - 1;
+        int na = ht4[i + 2] - 1;
+        int nb = ht4[i + 3] - 1;
         float xa = COL(a) * (1 + cellw), ya = ROW(a) * (1 + cellw);
-        float cxa = xa + (n % 3) * charw, cya = ya + (n / 3) * charw;
+        float cxa = xa + (na % 3) * charw, cya = ya + (na / 3) * charw;
         float xb = COL(b) * (1 + cellw), yb = ROW(b) * (1 + cellw);
-        float cxb = xb + (n % 3) * charw, cyb = yb + (n / 3) * charw;
+        float cxb = xb + (nb % 3) * charw, cyb = yb + (nb / 3) * charw;
         canvas.drawRect(cxa, cya, cxa + charw, cya + charw, paint);
         canvas.drawRect(cxb, cyb, cxb + charw, cyb + charw, paint);
         drawLink(canvas, cxa, cya, cxb, cyb, paint);
-        if (0 < i && 0 == (i % 3)) {
-          int a0 = ht4[i - 3], b0 = ht4[i - 2];
-          int n0 = ht4[i - 1] - 1;
-          float xa0 = COL(a0) * (1 + cellw), ya0 = ROW(a0) * (1 + cellw);
-          float cxa0 = xa0 + (n0 % 3) * charw, cya0 = ya0 + (n0 / 3) * charw;
+        if (0 < i && 0 == (i % 4)) {
+          int b0 = ht4[i - 3];
+          int n1 = ht4[i - 1] - 1;
           float xb0 = COL(b0) * (1 + cellw), yb0 = ROW(b0) * (1 + cellw);
-          float cxb0 = xb0 + (n0 % 3) * charw, cyb0 = yb0 + (n0 / 3) * charw;
-          if (a0 == a) {
-            drawLink(canvas, cxa0, cya0, cxa, cya, dotpaint);
-          } else if (a0 == b) {
-            drawLink(canvas, cxa0, cya0, cxb, cyb, dotpaint);
-          } else if (b0 == a) {
-            drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
-          } else if (b0 == b) {
-            drawLink(canvas, cxb0, cyb0, cxb, cyb, dotpaint);
-          } else if (BOX(b0) == BOX(b)) {
-            drawLink(canvas, cxb0, cyb0, cxb, cyb, dotpaint);
-          } else if (BOX(a0) == BOX(a)) {
-            drawLink(canvas, cxa0, cya0, cxa, cya, dotpaint);
-          } else if (BOX(a0) == BOX(b)) {
-            drawLink(canvas, cxa0, cya0, cxb, cyb, dotpaint);
-          } else if (BOX(b0) == BOX(a)) {
-            drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
-          } else if (COL(a0) == COL(a) || ROW(a0) == ROW(a)) {
-            drawLink(canvas, cxa0, cya0, cxa, cya, dotpaint);
-          } else if (COL(a0) == COL(b) || ROW(a0) == ROW(b)) {
-            drawLink(canvas, cxa0, cya0, cxb, cyb, dotpaint);
-          } else if (COL(b0) == COL(a) || ROW(b0) == ROW(a)) {
-            drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
-          } else if (COL(b0) == COL(b) || ROW(b0) == ROW(b)) {
-            drawLink(canvas, cxb0, cyb0, cxb, cyb, dotpaint);
-          }
+          float cxb0 = xb0 + (n1 % 3) * charw, cyb0 = yb0 + (n1 / 3) * charw;
+          drawLink(canvas, cxb0, cyb0, cxa, cya, dotpaint);
         }
       }
     }

@@ -1016,16 +1016,6 @@ again:
     }
   }
 
-  bool findXChains(int round)
-  {
-    return findXyzChains(round, CHAIN_TYPE_X, &KillSudoku::printXChains);
-  }
-
-  bool findXyChains(int round)
-  {
-    return findXyzChains(round, CHAIN_TYPE_XY, &KillSudoku::printXyChains);
-  }
-
   int getXyzChainEndPoint(const XyzChainState &s, int n, int cell)
   {
     for (int i = 0; i < s.cx[n]; i++) {
@@ -1245,8 +1235,8 @@ again:
   bool findXyzChains(int round, int type, PrintXyzChainsT p)
   {
     XyzChainState s = {0};
-
     findXyzChains(s, type);
+
     if (1000 != s.nBestChain) {
       int mask = s.bestMask[0], nht3 = 0, ht3[18];
       int a = s.bestChain[0];           // Head.
@@ -1259,6 +1249,16 @@ again:
     }
 
     return false;
+  }
+
+  bool findXChains(int round)
+  {
+    return findXyzChains(round, CHAIN_TYPE_X, &KillSudoku::printXChains);
+  }
+
+  bool findXyChains(int round)
+  {
+    return findXyzChains(round, CHAIN_TYPE_XY, &KillSudoku::printXyChains);
   }
 
   bool findXyzChains(int round)

@@ -46,6 +46,8 @@ public class ListActivity extends Activity
   {
     String puzzle;
     int pattern = 0;
+    boolean solved = false;
+    int steps = 0;
 
     public SudokuPuzzle(String puzzle) {
       this.puzzle = puzzle;
@@ -54,6 +56,13 @@ public class ListActivity extends Activity
     public SudokuPuzzle(String puzzle, int pattern) {
       this.puzzle = puzzle;
       this.pattern = pattern;
+    }
+
+    public SudokuPuzzle(String puzzle, int pattern, boolean solved, int steps) {
+      this.puzzle = puzzle;
+      this.pattern = pattern;
+      this.solved = solved;
+      this.steps = steps;
     }
 
     public String getPattern() {
@@ -115,6 +124,12 @@ public class ListActivity extends Activity
       SudokuPuzzle sudoku = (SudokuPuzzle)getItem(position);
       puzzle.puzzle = sudoku.puzzle;
       pattern.setText(sudoku.getPattern());
+      TextView info = (TextView)v.findViewById(R.id.info);
+      if (0 != sudoku.pattern && 0 < sudoku.steps) {
+        info.setText((sudoku.solved ? "Solved:" : "Not solved:") + sudoku.steps + " steps");
+      } else {
+        info.setText("");
+      }
       return v;
     }
   }
@@ -177,10 +192,14 @@ public class ListActivity extends Activity
 
       int position = data.getIntExtra("position", -1);
       int pattern = data.getIntExtra("pattern", 0);
+      boolean solved = data.getBooleanExtra("solved", false);
+      int steps = data.getIntExtra("steps", 0);
       if (-1 != position) {
         SudokuPuzzle p = listItems.get(position);
-        if (p.pattern != pattern) {
+        if (p.pattern != pattern || p.solved != solved || p.steps != steps) {
           p.pattern = pattern;
+          p.solved = solved;
+          p.steps = steps;
           adapter.notifyDataSetChanged();
           savePuzzle(listItems);
         }
@@ -211,6 +230,8 @@ public class ListActivity extends Activity
         if (!p.puzzle.equals(puzzle)) {
           p.puzzle = puzzle;
           p.pattern = 0;
+          p.solved = false;
+          p.steps = 0;
           adapter.notifyDataSetChanged();
           savePuzzle(listItems);
         }
@@ -271,7 +292,10 @@ public class ListActivity extends Activity
       String line;
       while (null != (line = buffer.readLine())) {
         String split[] = line.split("[,;\\s]+");
-        listItems.add(new SudokuPuzzle(split[0], Integer.valueOf(split[1])));
+        int pattern = Integer.valueOf(split[1]);
+        boolean solved = 3 <= split.length ? (1 == Integer.valueOf(split[2])) : false;
+        int steps = 4 <= split.length ? Integer.valueOf(split[3]) : 0;
+        listItems.add(new SudokuPuzzle(split[0], pattern, solved, steps));
       }
       is.close();
     } catch (Exception e) {
@@ -283,7 +307,7 @@ public class ListActivity extends Activity
       OutputStreamWriter w = new OutputStreamWriter(openFileOutput(PUZZLE_SAV_FILE_NAME, Context.MODE_PRIVATE));
       for (int i = 0; i < listItems.size(); i++) {
         SudokuPuzzle p = listItems.get(i);
-        w.write(p.puzzle + " " + p.pattern + "\n");
+        w.write(p.puzzle + " " + p.pattern + " " + (p.solved ? 1 : 0) + " " + p.steps + "\n");
       }
       w.close();
     } catch (Exception e) {

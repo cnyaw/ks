@@ -40,6 +40,7 @@ public class GameActivity extends Activity
 
   int position;                         // Listview position.
   int pattern;                          // Pattern mask of steps.
+  boolean isSolved = false;
 
   static class SolvingStep
   {
@@ -141,6 +142,8 @@ public class GameActivity extends Activity
     Intent output = new Intent();
     output.putExtra("position", position);
     output.putExtra("pattern", pattern);
+    output.putExtra("solved", isSolved);
+    output.putExtra("steps", steps.size() - 1);
     setResult(RESULT_OK, output);
     finish();
   }
@@ -148,6 +151,13 @@ public class GameActivity extends Activity
   void addStep(SolvingStep step) {
     steps.add(step);
     adapter.notifyDataSetChanged();
+    isSolved = true;
+    for (int i = 0; i < step.puzzle.length; i++) {
+      if (0 == step.puzzle[i]) {
+        isSolved = false;
+        break;
+      }
+    }
   }
 
   //

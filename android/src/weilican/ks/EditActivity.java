@@ -35,7 +35,7 @@ public class EditActivity extends Activity implements View.OnTouchListener
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.new_puzzle);
+    setContentView(R.layout.edit_puzzle);
 
     view = (SudokuView)findViewById(R.id.puzzle);
     view.setOnTouchListener(new OnTouchListener() {

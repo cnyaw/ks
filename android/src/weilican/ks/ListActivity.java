@@ -41,6 +41,9 @@ import java.util.ArrayList;
 public class ListActivity extends Activity
 {
   static final String PUZZLE_SAV_FILE_NAME = "puzzle_sav.txt";
+  static final int CMD_SOLVE_PUZZLE = 10000;
+  static final int CMD_NEW_PUZZLE = 20000;
+  static final int CMD_EDIT_PUZZLE = 30000;
 
   static class SudokuPuzzle
   {
@@ -164,7 +167,7 @@ public class ListActivity extends Activity
         Intent intent = new Intent(getBaseContext(), GameActivity.class);
         intent.putExtra("position", position);
         intent.putExtra("puzzle", listItems.get(position).puzzle);
-        startActivityForResult(intent, 10000);
+        startActivityForResult(intent, CMD_SOLVE_PUZZLE);
       }
     });
 
@@ -173,7 +176,7 @@ public class ListActivity extends Activity
       @Override
       public void onClick(View view) {
         Intent intent = new Intent(getBaseContext(), EditActivity.class);
-        startActivityForResult(intent, 20000);
+        startActivityForResult(intent, CMD_NEW_PUZZLE);
       }
     });
   }
@@ -184,7 +187,7 @@ public class ListActivity extends Activity
       return;
     }
 
-    if (10000 == requestCode) {
+    if (CMD_SOLVE_PUZZLE == requestCode) {
 
       //
       // Solve view.
@@ -204,7 +207,7 @@ public class ListActivity extends Activity
           savePuzzle(listItems);
         }
       }
-    } else if (20000 == requestCode) {
+    } else if (CMD_NEW_PUZZLE == requestCode) {
 
       //
       // New puzzle.
@@ -216,7 +219,7 @@ public class ListActivity extends Activity
         adapter.notifyDataSetChanged();
         savePuzzle(listItems);
       }
-    } else if (30000 == requestCode) {
+    } else if (CMD_EDIT_PUZZLE == requestCode) {
 
       //
       // Edit puzzle.
@@ -264,7 +267,7 @@ public class ListActivity extends Activity
       Intent intent = new Intent(getBaseContext(), EditActivity.class);
       intent.putExtra("position", position);
       intent.putExtra("puzzle", listItems.get(position).puzzle);
-      startActivityForResult(intent, 30000);
+      startActivityForResult(intent, CMD_EDIT_PUZZLE);
       return true;
     case R.id.delete_puzzle:
       listItems.remove(info.position);

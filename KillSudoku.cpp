@@ -57,7 +57,7 @@ public:
     printf(")\n");
   }
 
-  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[]) const
+  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[], int nht3, int ht3[]) const
   {
     printf("%d, Hidden subset: ", round);
     for (int i = 0; i < len; i++) {

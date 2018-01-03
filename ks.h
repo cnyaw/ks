@@ -82,7 +82,7 @@ public:
   virtual void printPointing(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const=0;
   virtual void printClaiming(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const=0;
   virtual void printNakedSubset(int round, int len, int mask, int pos[], int idx[/*9*/], int nht3, int ht3[]) const=0;
-  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[]) const=0;
+  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[], int nht3, int ht3[]) const=0;
   virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
   virtual void printXyChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
   virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
@@ -885,6 +885,7 @@ again:
     //
 
     bool change = false;
+    int nht3 = 0, ht3[18];
 
     for (int i = 0; i < 9; i++) {
 
@@ -904,6 +905,8 @@ again:
           int prev = candidate[index];
           candidate[index] &= mask;
           if (prev != candidate[index]) {
+            ht3[nht3++] = index;
+            ht3[nht3++] = candidate[index] ^ prev;
             change = true;
           }
 
@@ -921,7 +924,7 @@ again:
     //
 
     updateCandidates();
-    printHiddenSubset(round, n, idx, pos, set);
+    printHiddenSubset(round, n, idx, pos, set, nht3, ht3);
 
     return true;
   }

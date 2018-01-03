@@ -122,14 +122,21 @@ public:
     tmpEnv->CallStaticVoidMethod(cls, mid, round, getPuzzleIntArray(), getCandidateIntArray(), iaHt1, iaHt2, iaHt3);
   }
 
-  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[]) const
+  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[], int nht3, int ht3[]) const
   {
     jclass cls = tmpEnv->FindClass(JNI_ACTIVITY);
-    jmethodID mid = tmpEnv->GetStaticMethodID(cls, "printHiddenSubset", "(I[I[I)V");
+    jmethodID mid = tmpEnv->GetStaticMethodID(cls, "printHiddenSubset", "(I[I[I[I[I[I)V");
     if (!mid) {
       return;
     }
-    tmpEnv->CallStaticVoidMethod(cls, mid, round, getPuzzleIntArray(), getCandidateIntArray());
+    int ht1Pos[9] = {0};
+    for (int i = 0; i < len; i++) {
+      ht1Pos[i] = idx[pos[i]];
+    }
+    jintArray iaHt1 = getIntArray(len, ht1Pos);
+    jintArray iaHt2 = getIntArray(9, (const int*)idx);
+    jintArray iaHt3 = getIntArray(nht3, (const int*)ht3);
+    tmpEnv->CallStaticVoidMethod(cls, mid, round, getPuzzleIntArray(), getCandidateIntArray(), iaHt1, iaHt2, iaHt3);
   }
 
   virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const

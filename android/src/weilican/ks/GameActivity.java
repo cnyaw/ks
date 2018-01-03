@@ -216,9 +216,13 @@ public class GameActivity extends Activity
     This.pattern |= PATTERN_NAKED_SUBSET;
   }
 
-  static void printHiddenSubset(int round, int puzzle[], int candidate[])
+  static void printHiddenSubset(int round, int puzzle[], int candidate[], int ht1[], int ht2[], int ht3[])
   {
-    This.addStep(new SolvingStep(round + ", Hidden Subset", puzzle, candidate));
+    SolvingStep s = new SolvingStep(round + ", Hidden Subset", puzzle, candidate);
+    s.ht1 = ht1;
+    s.ht2 = ht2;
+    s.ht3 = ht3;
+    This.addStep(s);
     This.pattern |= PATTERN_HIDDEN_SUBSET;
   }
 

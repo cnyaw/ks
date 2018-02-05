@@ -127,19 +127,12 @@ public:
     int c[9], idx[9];
 
     nht3 = 0;
-    if (COL(a) == COL(b)) {
-      getCandidateListOfCol(COL(a), c, idx);
-      for (int k = 0; k < 9; k++) {
-        if (idx[k] != a && idx[k] != b && !isSolved(idx[k]) && c[k] & mask) {
-          if (!IsCheckOnly) {
-            candidate[idx[k]] &= ~mask;
-          }
-          ht3[nht3++] = idx[k];
-          ht3[nht3++] = mask;
-        }
+    if (COL(a) == COL(b) || ROW(a) == ROW(b)) {
+      if (COL(a) == COL(b)) {
+        getCandidateListOfCol(COL(a), c, idx);
+      } else {
+        getCandidateListOfRow(ROW(a), c, idx);
       }
-    } else if (ROW(a) == ROW(b)) {
-      getCandidateListOfRow(ROW(a), c, idx);
       for (int k = 0; k < 9; k++) {
         if (idx[k] != a && idx[k] != b && !isSolved(idx[k]) && c[k] & mask) {
           if (!IsCheckOnly) {
@@ -980,6 +973,18 @@ again:
     return false;
   }
 
+  void collectStrongLinkOfLine(int n, int &cx, int x[], int c[], int idx[], int cell[])
+  {
+    if (2 == getCandidateCountOfList(c, n, cell)) {
+      int i1 = idx[cell[0]], i2 = idx[cell[1]];
+      if (BOX(i1) != BOX(i2)) {
+        x[cx * 2 + 0] = i1;
+        x[cx * 2 + 1] = i2;
+        cx += 1;
+      }
+    }
+  }
+
   void collectStrongLinks(int n, int &cx, int x[])
   {
     int c[9], idx[9], cell[9];
@@ -987,26 +992,12 @@ again:
 
     for (int row = 0; row < 9; row++) {
       getCandidateListOfRow(row, c, idx);
-      if (2 == getCandidateCountOfList(c, n, cell)) {
-        int i1 = idx[cell[0]], i2 = idx[cell[1]];
-        if (BOX(i1) != BOX(i2)) {
-          x[cx * 2 + 0] = i1;
-          x[cx * 2 + 1] = i2;
-          cx += 1;
-        }
-      }
+      collectStrongLinkOfLine(n, cx, x, c, idx, cell);
     }
 
     for (int col = 0; col < 9; col++) {
       getCandidateListOfCol(col, c, idx);
-      if (2 == getCandidateCountOfList(c, n, cell)) {
-        int i1 = idx[cell[0]], i2 = idx[cell[1]];
-        if (BOX(i1) != BOX(i2)) {
-          x[cx * 2 + 0] = i1;
-          x[cx * 2 + 1] = i2;
-          cx += 1;
-        }
-      }
+      collectStrongLinkOfLine(n, cx, x, c, idx, cell);
     }
 
     for (int box = 0; box < 9; box++) {

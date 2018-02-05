@@ -1220,20 +1220,12 @@ function isChanged(a, b, mask, IsCheckOnly)
   var changed = false;
   var c = [], idx = [];
 
-  if (COL(a) == COL(b)) {
-    getCandidateListOfCol(COL(a), c, idx);
-    for (var k = 0; k < 9; k++) {
-      if (idx[k] != a && idx[k] != b && !isSolved(idx[k]) && c[k] & mask) {
-        changed = true;
-        if (!IsCheckOnly) {
-          candidate[idx[k]] &= ~mask;
-        }
-        ht3.push(idx[k]);
-        htMask.push(mask);
-      }
+  if (COL(a) == COL(b) || ROW(a) == ROW(b)) {
+    if (COL(a) == COL(b)) {
+      getCandidateListOfCol(COL(a), c, idx);
+    } else {
+      getCandidateListOfRow(ROW(a), c, idx);
     }
-  } else if (ROW(a) == ROW(b)) {
-    getCandidateListOfRow(ROW(a), c, idx);
     for (var k = 0; k < 9; k++) {
       if (idx[k] != a && idx[k] != b && !isSolved(idx[k]) && c[k] & mask) {
         changed = true;
@@ -1325,6 +1317,19 @@ var sFlags;                             // Is used state of cell.
 var snChain, sChain, sMask;             // XYZ chains.
 var snBestChain, sBestChain, sBestMask; // Shortest chain.
 
+function collectStrongLinkOfLine(n, cx, x, c, idx, cell)
+{
+  if (2 == getCandidateCountOfList(c, n, cell)) {
+    var i1 = idx[cell[0]], i2 = idx[cell[1]];
+    if (BOX(i1) != BOX(i2)) {
+      x[cx * 2 + 0] = i1;
+      x[cx * 2 + 1] = i2;
+      cx += 1;
+    }
+  }
+  return cx
+}
+
 function collectStrongLinks(n, x)
 {
   var c = [], idx = [], cell = [];
@@ -1332,26 +1337,12 @@ function collectStrongLinks(n, x)
 
   for (var row = 0; row < 9; row++) {
     getCandidateListOfRow(row, c, idx);
-    if (2 == getCandidateCountOfList(c, n, cell)) {
-      var i1 = idx[cell[0]], i2 = idx[cell[1]];
-      if (BOX(i1) != BOX(i2)) {
-        x[cx * 2 + 0] = i1;
-        x[cx * 2 + 1] = i2;
-        cx += 1;
-      }
-    }
+    cx = collectStrongLinkOfLine(n, cx, x, c, idx, cell);
   }
 
   for (var col = 0; col < 9; col++) {
     getCandidateListOfCol(col, c, idx);
-    if (2 == getCandidateCountOfList(c, n, cell)) {
-      var i1 = idx[cell[0]], i2 = idx[cell[1]];
-      if (BOX(i1) != BOX(i2)) {
-        x[cx * 2 + 0] = i1;
-        x[cx * 2 + 1] = i2;
-        cx += 1;
-      }
-    }
+    cx = collectStrongLinkOfLine(n, cx, x, c, idx, cell);
   }
 
   for (var box = 0; box < 9; box++) {

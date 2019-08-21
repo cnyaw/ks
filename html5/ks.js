@@ -16,6 +16,7 @@ var puzzlew = 9 * (1 + cellw), puzzleh = 9 * (1 + cellh);
 var CHAIN_TYPE_X = 0;
 var CHAIN_TYPE_XY = 1;
 var CHAIN_TYPE_XYZ = 2;
+var SHOW_CANDIDATES = 1;
 
 //
 // Puzzle.
@@ -54,76 +55,6 @@ function ROW(i) {
 
 function BOX(i) {
   return tBOX[i];
-}
-
-//
-// Init form.
-//
-
-document.getElementById('rstpzl').onclick = resetPuzzle;
-document.getElementById('solpzl').onclick = solve;
-
-sharelink = document.getElementById('sharelink');
-sharelink.style.display = 'none';
-sharelink.style.width = '400px';
-sharelink.style.height = '2em';
-sharelink.style.border = '1px solid #666';
-
-document.getElementById('share').onclick = function() {
-
-  if (edit) {
-    p2 = p.slice(0);                    // Copy current puzzle.
-  }
-
-  var link = location.href.split("?")[0].split("#")[0] + '?p=';
-  for (var i = 0; i < 81; i++) {
-    link = link + p2[i];
-  }
-
-  if (!edit) {
-    link = link + '&s=1';
-  }
-
-  sharelink.style.display = 'block';
-  sharelink.value = link;
-}
-
-//
-// Init edit canvas.
-//
-
-var c = document.getElementById('c0');
-c.setAttribute('width', puzzlew);
-c.setAttribute('height', puzzleh);
-
-c.onmousedown = function(e) {
-
-  sharelink.style.display = 'none';
-
-  if (!edit || 2 == e.button) {
-    return;
-  }
-
-  var offset = getOffset(e);
-  var col = Math.floor(offset.x / (1 + cellw));
-  var row = Math.floor(offset.y / (1 + cellh));
-  var i = getIdxFromColRow(col, row);
-
-  if (0 != p[i]) {
-    p[i] = 0;
-    initCandidates();
-    renderPuzzle('c0');
-    return false;
-  }
-
-  var chcol = Math.floor((offset.x - col * (1 + cellw)) / charw);
-  var chrow = Math.floor((offset.y - row * (1 + cellh)) / charh);
-  var j = chcol + 3 * chrow;
-  if (0 != (candidate[i] & n2b(1 + j))) {
-    p[i] = 1 + j;
-    initCandidates();
-    renderPuzzle('c0');
-  }
 }
 
 //
@@ -486,7 +417,7 @@ function renderPuzzle(name) {
       ctx.font = '30px Arial';
       ctx.fillText(p[i], x + charw, y + charh);
 
-    } else {
+    } else if (SHOW_CANDIDATES) {
 
       //
       // Draw candidates.
@@ -1219,6 +1150,7 @@ function isChanged(a, b, mask, IsCheckOnly)
 {
   var changed = false;
   var c = [], idx = [];
+  ht3 = [];
 
   if (COL(a) == COL(b) || ROW(a) == ROW(b)) {
     if (COL(a) == COL(b)) {
@@ -1635,6 +1567,76 @@ function p_findXyzChains(round)
   msg = 'XYZ-Chains';
   sType = CHAIN_TYPE_XYZ;
   return findXyzChains(round);
+}
+
+//
+// Init form.
+//
+
+document.getElementById('rstpzl').onclick = resetPuzzle;
+document.getElementById('solpzl').onclick = solve;
+
+sharelink = document.getElementById('sharelink');
+sharelink.style.display = 'none';
+sharelink.style.width = '400px';
+sharelink.style.height = '2em';
+sharelink.style.border = '1px solid #666';
+
+document.getElementById('share').onclick = function() {
+
+  if (edit) {
+    p2 = p.slice(0);                    // Copy current puzzle.
+  }
+
+  var link = location.href.split("?")[0].split("#")[0] + '?p=';
+  for (var i = 0; i < 81; i++) {
+    link = link + p2[i];
+  }
+
+  if (!edit) {
+    link = link + '&s=1';
+  }
+
+  sharelink.style.display = 'block';
+  sharelink.value = link;
+}
+
+//
+// Init edit canvas.
+//
+
+var c = document.getElementById('c0');
+c.setAttribute('width', puzzlew);
+c.setAttribute('height', puzzleh);
+
+c.onmousedown = function(e) {
+
+  sharelink.style.display = 'none';
+
+  if (!edit || 2 == e.button) {
+    return;
+  }
+
+  var offset = getOffset(e);
+  var col = Math.floor(offset.x / (1 + cellw));
+  var row = Math.floor(offset.y / (1 + cellh));
+  var i = getIdxFromColRow(col, row);
+
+  if (0 != p[i]) {
+    p[i] = 0;
+    initCandidates();
+    renderPuzzle('c0');
+    return false;
+  }
+
+  var chcol = Math.floor((offset.x - col * (1 + cellw)) / charw);
+  var chrow = Math.floor((offset.y - row * (1 + cellh)) / charh);
+  var j = chcol + 3 * chrow;
+  if (0 != (candidate[i] & n2b(1 + j))) {
+    p[i] = 1 + j;
+    initCandidates();
+    renderPuzzle('c0');
+  }
 }
 
 //

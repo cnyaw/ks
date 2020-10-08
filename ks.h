@@ -8,6 +8,10 @@
 // 2016/7/4 Waync Cheng.
 //
 
+#pragma once
+
+#define PUZZLE_SIZE 81
+
 class KillSudoku
 {
 public:
@@ -21,23 +25,23 @@ public:
   struct XyzChainState
   {
     int type;
-    int cx[9], x[9][81], xmap[81];      // X links.
-    int cxy, xy[81], xymap[81];         // XY cells.
-    int nCells, cells[81];              // Possible node of XYZ chains.
-    int flags[81];                      // Is used state of cell.
-    int nChain, chain[81], mask[81];    // XYZ chains.
-    int nBestChain, bestChain[81], bestMask[81]; // Shortest chain.
+    int cx[9], x[9][PUZZLE_SIZE], xmap[81]; // X links.
+    int cxy, xy[PUZZLE_SIZE], xymap[PUZZLE_SIZE]; // XY cells.
+    int nCells, cells[PUZZLE_SIZE];     // Possible node of XYZ chains.
+    int flags[PUZZLE_SIZE];             // Is used state of cell.
+    int nChain, chain[PUZZLE_SIZE], mask[PUZZLE_SIZE]; // XYZ chains.
+    int nBestChain, bestChain[PUZZLE_SIZE], bestMask[PUZZLE_SIZE]; // Shortest chain.
   };
 
   //
-  // The puzzle consist of 9x9(p[81]) cells. Layout from left to right, top
+  // The puzzle consist of 9x9(p[PUZZLE_SIZE]) cells. Layout from left to right, top
   // to bottom. Each solved cell contains a number(1~9), and 0 indicates this
   // cell is not solved. Each cell maintains a candidate bitset to indicate
-  // how many candidate numbers in this unsolved cell(candidate[81]).
+  // how many candidate numbers in this unsolved cell(candidate[PUZZLE_SIZE]).
   //
 
-  int p[81];                            // Puzzle data, 0 indicates not solved. num 1~9.
-  int candidate[81];                    // Candidates bitset of each cell. 1 bit for 1 num.
+  int p[PUZZLE_SIZE];                   // Puzzle data, 0 indicates not solved. num 1~9.
+  int candidate[PUZZLE_SIZE];           // Candidates bitset of each cell. 1 bit for 1 num.
 
   typedef bool (KillSudoku::*CHECK)(int);
   int nchk;                             // Number of checking technique.
@@ -47,7 +51,7 @@ public:
   // Table of col/row/box index of each cell.
   //
 
-  unsigned char tCol[81], tRow[81], tBox[81];
+  unsigned char tCol[PUZZLE_SIZE], tRow[PUZZLE_SIZE], tBox[PUZZLE_SIZE];
 
 #define COL(i) (tCol[(i)])
 #define ROW(i) (tRow[(i)])
@@ -70,7 +74,7 @@ public:
     // Build lookup table.
     //
 
-    for (int i = 0; i < 81; i++) {
+    for (int i = 0; i < PUZZLE_SIZE; i++) {
       tCol[i] = i % 9;
       tRow[i] = i / 9;
       tBox[i] = 3 * (tRow[i] / 3) + (tCol[i] / 3);
@@ -1151,7 +1155,7 @@ again:
     //
 
     if (CHAIN_TYPE_X != type) {
-      for (int i = 0; i < 81; i++) {
+      for (int i = 0; i < PUZZLE_SIZE; i++) {
         if (2 == bc(candidate[i])) {
           s.xy[s.cxy] = i;
           s.cxy += 1;
@@ -1168,7 +1172,7 @@ again:
     // Collect candidate cells of XYZ chains.
     //
 
-    for (int i = 0; i < 81; i++) {
+    for (int i = 0; i < PUZZLE_SIZE; i++) {
       if (s.xmap[i] || s.xymap[i]) {
         s.cells[s.nCells] = i;
         s.nCells += 1;

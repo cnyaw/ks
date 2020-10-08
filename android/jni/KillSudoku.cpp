@@ -20,8 +20,6 @@ JNIEnv *tmpEnv;
 
 #include "../../ks.h"
 
-#define PUZZLE_SIZE 81
-
 class KillSudokuAndroid : public KillSudoku
 {
 public:
@@ -163,7 +161,7 @@ public:
   {
     int a = s.bestChain[0];             // Head.
     int b = s.bestChain[s.nBestChain - 1]; // Tail.
-    int nht4 = 0, ht4[81 * 2];
+    int nht4 = 0, ht4[PUZZLE_SIZE * 2];
     for (int i = 0; i < s.nBestChain; i += 2) {
       int x = s.bestChain[i];
       int y = s.bestChain[i + 1];
@@ -211,8 +209,8 @@ JNIEXPORT void JNICALL Java_weilican_ks_GameActivity_ksSolve(JNIEnv * env, jobje
 
   const char* strPuzzle = env->GetStringUTFChars(pPuzzle, (jboolean *)0);
 
-  int puzzle[81] = {0};
-  for (int i = 0; i < 81 && i < (int)strlen(strPuzzle); i++) {
+  int puzzle[PUZZLE_SIZE] = {0};
+  for (int i = 0; i < PUZZLE_SIZE && i < (int)strlen(strPuzzle); i++) {
     puzzle[i] = strPuzzle[i] - '0';
   }
 
@@ -231,8 +229,8 @@ JNIEXPORT void JNICALL Java_weilican_ks_EditActivity_ksCheck(JNIEnv * env, jobje
   tmpEnv = env;
 
   const char* strPuzzle = tmpEnv->GetStringUTFChars(pPuzzle, (jboolean *)0);
-  int puzzle[81] = {0};
-  for (int i = 0; i < 81 && i < (int)strlen(strPuzzle); i++) {
+  int puzzle[PUZZLE_SIZE] = {0};
+  for (int i = 0; i < PUZZLE_SIZE && i < (int)strlen(strPuzzle); i++) {
     puzzle[i] = strPuzzle[i] - '0';
   }
 

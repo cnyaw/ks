@@ -57,9 +57,31 @@ public:
 #define ROW(i) (tRow[(i)])
 #define BOX(i) (tBox[(i)])
 
+  KillSudoku() : nchk(0)
+  {
+    memset(p, 0, sizeof(p));
+    init();
+  }
+
   KillSudoku(int _p[]) : nchk(0)
   {
     memcpy(p, _p, sizeof(p));
+    init();
+  }
+
+  virtual void printNakedSingle(int round, int i) const=0;
+  virtual void printHiddenSingle(int round, int i, int type, int idx[/*9*/]) const=0;
+  virtual void printPointing(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const=0;
+  virtual void printClaiming(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const=0;
+  virtual void printNakedSubset(int round, int len, int mask, int pos[], int idx[/*9*/], int nht3, int ht3[]) const=0;
+  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[], int nht3, int ht3[]) const=0;
+  virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
+  virtual void printXyChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
+  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
+  virtual void printPuzzle() const=0;
+
+  void init()
+  {
     initCandidates();
 
     installCf(&KillSudoku::findSingle);
@@ -80,17 +102,6 @@ public:
       tBox[i] = 3 * (tRow[i] / 3) + (tCol[i] / 3);
     }
   }
-
-  virtual void printNakedSingle(int round, int i) const=0;
-  virtual void printHiddenSingle(int round, int i, int type, int idx[/*9*/]) const=0;
-  virtual void printPointing(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const=0;
-  virtual void printClaiming(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const=0;
-  virtual void printNakedSubset(int round, int len, int mask, int pos[], int idx[/*9*/], int nht3, int ht3[]) const=0;
-  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[], int nht3, int ht3[]) const=0;
-  virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
-  virtual void printXyChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
-  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const=0;
-  virtual void printPuzzle() const=0;
 
   void installCf(CHECK f)
   {

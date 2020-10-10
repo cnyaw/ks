@@ -75,7 +75,6 @@ c0.onmousedown = function(e) {
 }
 
 function addStep(round, msg, p, candidate, ht1, ht2, ht3, ht4) {
-  var div = document.createElement('div');
   var h = document.createElement('h1');
   h.appendChild(document.createTextNode(round + ', ' + msg));
   steps.appendChild(h);

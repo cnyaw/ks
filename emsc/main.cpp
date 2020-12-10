@@ -172,7 +172,114 @@ public:
   }
 };
 
+class KillSudokuRating : public KillSudoku
+{
+public:
+
+  mutable int m_nClaiming, m_nPointing, m_nSubset, m_nXChains, m_nXyChains, m_nXyzChains;
+
+  KillSudokuRating(const char *pPuzzle) : m_nClaiming(0), m_nPointing(0), m_nSubset(0), m_nXChains(0), m_nXyChains(0), m_nXyzChains(0)
+  {
+    int puzzle[PUZZLE_SIZE] = {0};
+    for (int i = 0; i < sizeof(puzzle); i++) {
+      puzzle[i] = pPuzzle[i] - '0';
+    }
+    memcpy(p, puzzle, sizeof(p));
+    initCandidates();
+  }
+
+  int getRating() const
+  {
+    if (!isPuzzleSolved()) {
+      return 10;
+    }
+    if (0 < m_nXyzChains) {
+      return 9;
+    }
+    if (0 < m_nXyChains) {
+      return 8;
+    }
+    if (0 < m_nXChains) {
+      return 7;
+    }
+    if (0 < m_nSubset) {
+      return 6;
+    }
+    if (0 < m_nClaiming) {
+      return 5;
+    }
+    if (0 < m_nPointing) {
+      return 4;
+    }
+    return 3;
+  }
+
+  bool isPuzzleSolved() const
+  {
+    for (int i = 0; i < PUZZLE_SIZE; i++) {
+      if (!isSolved(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  virtual void printNakedSingle(int round, int i) const
+  {
+  }
+
+  virtual void printHiddenSingle(int round, int i, int type, int idx[/*9*/]) const
+  {
+  }
+
+  virtual void printClaiming(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const
+  {
+    m_nClaiming += 1;
+  }
+
+  virtual void printPointing(int round, int n, int len, int idx[/*9*/], int cell[], int nht3, int ht3[]) const
+  {
+    m_nPointing += 1;
+  }
+
+  virtual void printNakedSubset(int round, int len, int mask, int pos[], int idx[/*9*/], int nht3, int ht3[]) const
+  {
+    m_nSubset += 1;
+  }
+
+  virtual void printHiddenSubset(int round, int len, int idx[], int pos[], int set[], int nht3, int ht3[]) const
+  {
+    m_nSubset += 1;
+  }
+
+  virtual void printXChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  {
+    m_nXChains += 1;
+  }
+
+  virtual void printXyChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  {
+    m_nXyChains += 1;
+  }
+
+  virtual void printXyzChains(int round, int n, XyzChainState const& s, int nht3, int ht3[]) const
+  {
+    m_nXyzChains += 1;
+  }
+
+  virtual void printPuzzle() const
+  {
+  }
+};
+
 extern "C" {
+
+int EMSCRIPTEN_KEEPALIVE cGetPuzzleRating(const char *pPuzzle)
+{
+  KillSudokuRating p(pPuzzle);
+  p.solve();
+  return p.getRating();
+}
 
 int EMSCRIPTEN_KEEPALIVE cIsEditPuzzleValid(const char *pPuzzle, int pi, int n)
 {

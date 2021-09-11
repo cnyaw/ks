@@ -33,6 +33,7 @@ function BOX(i) {
 }
 
 var p = [];
+var solved = false;
 
 var steps = document.getElementById('steps');
 
@@ -84,6 +85,7 @@ function addStep(round, msg, p, candidate, ht1, ht2, ht3, ht4) {
   var ctx = c.getContext('2d');
   renderStep(ctx, p, candidate, ht1, ht2, ht3, ht4);
   steps.appendChild(c);
+  solved = isSolved(p);
 }
 
 function checkUrlParam() {
@@ -147,6 +149,15 @@ function fillCell(ctx, x, y, color) {
 function isEditPuzzleValid(i, n) {
   var s = p.join('');
   return Module.ccall('cIsEditPuzzleValid', 'number', ['string', 'number', 'number'], [s, i, n]);
+}
+
+function isSolved(p) {
+  for (var i = 0; i < p.length; i++) {
+    if (0 == p[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function n2b(n) {
@@ -327,6 +338,11 @@ function solvePuzzle() {
   resetSteps();
   var s = p.join('');
   solve(s);
+  if (!solved) {
+    var h = document.createElement('h1');
+    h.appendChild(document.createTextNode('(NOT SOLVED!)'));
+    steps.appendChild(h);
+  }
 }
 
 resetPuzzle();

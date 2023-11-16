@@ -18,7 +18,7 @@ public:
   KillSudokuHtml5(const char *pPuzzle)
   {
     int puzzle[PUZZLE_SIZE] = {0};
-    for (int i = 0; i < sizeof(puzzle); i++) {
+    for (int i = 0; i < PUZZLE_SIZE; i++) {
       puzzle[i] = pPuzzle[i] - '0';
     }
     memcpy(p, puzzle, sizeof(p));
@@ -181,7 +181,7 @@ public:
   KillSudokuRating(const char *pPuzzle) : m_nClaiming(0), m_nPointing(0), m_nSubset(0), m_nXChains(0), m_nXyChains(0), m_nXyzChains(0)
   {
     int puzzle[PUZZLE_SIZE] = {0};
-    for (int i = 0; i < sizeof(puzzle); i++) {
+    for (int i = 0; i < PUZZLE_SIZE; i++) {
       puzzle[i] = pPuzzle[i] - '0';
     }
     memcpy(p, puzzle, sizeof(p));
@@ -313,5 +313,6 @@ int EMSCRIPTEN_KEEPALIVE cSolve(const char *pPuzzle)
 
 int main(int argc, char* argv[])
 {
+  emscripten_run_script("ongameload()");
   emscripten_exit_with_live_runtime();
 }

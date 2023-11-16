@@ -345,5 +345,7 @@ function solvePuzzle() {
   }
 }
 
-resetPuzzle();
-checkUrlParam();
+function ongameload() {
+  resetPuzzle();
+  checkUrlParam();
+}

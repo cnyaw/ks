@@ -15,21 +15,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.File;
@@ -72,48 +69,27 @@ public class ListActivity extends Activity
       if (0 == pattern) {
         return "New";
       }
-
       final String p[] = {"Naked Single", "Hidden Single", "Pointing", "Claiming",
                           "Naked Subset", "Hidden Subset",
                           "X-Chains", "XY-Chains", "XYZ-Chains"};
-      String s = "";
+      ArrayList<String> a = new ArrayList<String>();
       for (int i = 0; i < p.length; i++) {
         if (0 != (pattern & (1 << i))) {
-          s += p[i] + ",";
+          a.add(p[i]);
         }
       }
-
-      if (0 < s.length()) {
-        return s.substring(0, s.length() - 1); // Remove last ','.
-      } else {
-        return s;
-      }
+      String s = a.toString();
+      return s.substring(1, s.length() - 1);
     }
   }
 
-  class MyAdapter extends BaseAdapter
+  class MyAdapter extends ArrayAdapter<SudokuPuzzle>
   {
     LayoutInflater inflater;
-    ArrayList<SudokuPuzzle> puzzles;
 
-    public MyAdapter(Context context, ArrayList<SudokuPuzzle> puzzles) {
+    public MyAdapter(Context context, ArrayList<SudokuPuzzle> data) {
+      super(context, R.layout.puzzle_list_item, R.id.pattern, data);
       inflater = LayoutInflater.from(context);
-      this.puzzles = puzzles;
-    }
-
-    @Override
-    public int getCount() {
-      return puzzles.size();
-    }
-
-    @Override
-    public Object getItem(int arg0) {
-      return puzzles.get(arg0);
-    }
-
-    @Override
-    public long getItemId(int position) {
-      return puzzles.indexOf(getItem(position));
     }
 
     @Override
@@ -159,7 +135,6 @@ public class ListActivity extends Activity
 
     adapter = new MyAdapter(this, listItems);
     listView.setAdapter(adapter);
-    registerForContextMenu(listView);
 
     listView.setOnItemClickListener(new OnItemClickListener() {
       @Override
@@ -168,6 +143,14 @@ public class ListActivity extends Activity
         intent.putExtra("position", position);
         intent.putExtra("puzzle", listItems.get(position).puzzle);
         startActivityForResult(intent, CMD_SOLVE_PUZZLE);
+      }
+    });
+
+    listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+      @Override
+      public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+         showListViewPopupMenu(arg1, arg2);
+         return true;
       }
     });
 
@@ -242,42 +225,6 @@ public class ListActivity extends Activity
     }
   }
 
-  @Override
-  public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
-    super.onCreateContextMenu(menu, view, menuInfo);
-    menu.setHeaderTitle("Command for puzzle");
-    MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.list_menu, menu);
-  }
-
-  @Override
-  public boolean onContextItemSelected(MenuItem item) {
-    AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-    int position = info.position;
-    switch (item.getItemId())
-    {
-    case R.id.copy_puzzle:
-      SudokuPuzzle s = listItems.get(position);
-      listItems.add(new SudokuPuzzle(s.puzzle));
-      adapter.notifyDataSetChanged();
-      savePuzzle(listItems);
-      position = listItems.size() - 1;
-      // Fall throw.
-    case R.id.edit_puzzle:
-      Intent intent = new Intent(getBaseContext(), EditActivity.class);
-      intent.putExtra("position", position);
-      intent.putExtra("puzzle", listItems.get(position).puzzle);
-      startActivityForResult(intent, CMD_EDIT_PUZZLE);
-      return true;
-    case R.id.delete_puzzle:
-      listItems.remove(info.position);
-      adapter.notifyDataSetChanged();
-      savePuzzle(listItems);
-      return true;
-    }
-    return super.onContextItemSelected(item);
-  }
-
   void loadPuzzle(ArrayList<SudokuPuzzle> listItems) {
     File file = getFileStreamPath(PUZZLE_SAV_FILE_NAME);
     if (!file.exists()) {
@@ -315,6 +262,40 @@ public class ListActivity extends Activity
       w.close();
     } catch (Exception e) {
     }
+  }
+
+  void showListViewPopupMenu(View view, int position) {
+    final int pos[] = {position};
+    PopupMenu popupMenu = new PopupMenu(this, view);
+    popupMenu.getMenuInflater().inflate(R.menu.list_menu, popupMenu.getMenu());
+    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+      @Override
+      public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+          case R.id.copy_puzzle:
+            SudokuPuzzle s = listItems.get(pos[0]);
+            listItems.add(new SudokuPuzzle(s.puzzle));
+            adapter.notifyDataSetChanged();
+            savePuzzle(listItems);
+            pos[0] = listItems.size() - 1;
+            // Fall throw.
+          case R.id.edit_puzzle:
+            Intent intent = new Intent(getBaseContext(), EditActivity.class);
+            intent.putExtra("position", pos[0]);
+            intent.putExtra("puzzle", listItems.get(pos[0]).puzzle);
+            startActivityForResult(intent, CMD_EDIT_PUZZLE);
+            return true;
+          case R.id.delete_puzzle:
+            listItems.remove(pos[0]);
+            adapter.notifyDataSetChanged();
+            savePuzzle(listItems);
+            return true;
+          default:
+            return false;
+        }
+      }
+    });
+    popupMenu.show();
   }
 
   static {
